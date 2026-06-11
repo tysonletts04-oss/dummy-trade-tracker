@@ -3,192 +3,241 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Hit Rate Calculator</title>
+<title>Alpine Capital — Hit Rate Calculator</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cabin:wght@500;600;700&display=swap" rel="stylesheet" />
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%23002C32'/%3E%3Ccircle cx='50' cy='50' r='40' fill='none' stroke='%23FD6826' stroke-width='5'/%3E%3Cpath fill='%23FD6826' d='M22 71 L50 31 L78 71 Z'/%3E%3Cpath fill='%23002C32' d='M50 31 L40 58 L49.5 50 L55 58 L60 52 Z'/%3E%3C/svg%3E" />
+
 <style>
+  /* ===== Alpine Capital brand palette =====
+     Orange  #FD6826  (signature)
+     Dark Green #002C32 (primary)
+     Light Grey #F3F3F4 · Black #000000 · White #FFFFFF
+     Primary typeface: Cabin (Cabin Medium), Arial fallback.        */
   :root {
-    --bg: #0f1419;
-    --panel: #171e29;
-    --panel-2: #1f2937;
-    --border: #2a3442;
-    --text: #e6edf3;
-    --muted: #8b97a7;
-    --accent: #3b82f6;
-    --green: #22c55e;
-    --red: #ef4444;
-    --amber: #f59e0b;
-    --radius: 12px;
+    --green: #002C32;       /* primary background        */
+    --green-1: #07383F;     /* raised panel              */
+    --green-2: #0C434B;     /* inputs / nested surfaces  */
+    --border: #16505A;      /* hairlines                 */
+    --orange: #FD6826;      /* signature / positive      */
+    --orange-soft: rgba(253,104,38,0.14);
+    --neg: #E84C4C;         /* losses                    */
+    --neg-soft: rgba(232,76,76,0.14);
+    --light: #F3F3F4;       /* primary text              */
+    --muted: #8FAAB0;       /* secondary text            */
+    --radius: 14px;
+    --tracking: 0.04em;     /* brand tracking            */
   }
 
   * { box-sizing: border-box; }
 
   body {
     margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    line-height: 1.45;
+    font-family: "Cabin", Arial, Helvetica, sans-serif;
+    font-weight: 500;
+    background: var(--green);
+    color: var(--light);
+    line-height: 1.5;
     -webkit-font-smoothing: antialiased;
   }
 
-  header {
-    padding: 28px 24px 20px;
+  /* ---------- Top bar / logo lock-up ---------- */
+  .topbar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 22px 28px;
     border-bottom: 1px solid var(--border);
   }
-  header h1 { margin: 0; font-size: 1.6rem; letter-spacing: -0.02em; }
-  header p { margin: 6px 0 0; color: var(--muted); font-size: 0.95rem; }
+  .logo-symbol { width: 44px; height: 44px; flex: 0 0 auto; }
+  .wordmark {
+    font-weight: 700;
+    font-size: 1.25rem;
+    letter-spacing: 0.14em;
+    color: var(--orange);
+    text-transform: uppercase;
+  }
+  .topbar .divider { width: 1px; height: 26px; background: var(--border); margin: 0 4px; }
+  .topbar .tool-name { color: var(--muted); font-size: 0.95rem; letter-spacing: var(--tracking); }
+  .topbar .spacer { flex: 1; }
+  .topbar .site { color: var(--muted); font-size: 0.85rem; letter-spacing: var(--tracking); }
+  @media (max-width: 640px) {
+    .topbar .tool-name, .topbar .divider, .topbar .site { display: none; }
+  }
+
+  header.hero { padding: 34px 28px 22px; }
+  header.hero h1 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+  }
+  header.hero p { margin: 8px 0 0; color: var(--muted); font-size: 1rem; max-width: 70ch; }
 
   .wrap {
-    max-width: 1100px;
+    max-width: 1140px;
     margin: 0 auto;
-    padding: 24px;
+    padding: 8px 28px 48px;
     display: grid;
-    grid-template-columns: 360px 1fr;
-    gap: 24px;
+    grid-template-columns: 372px 1fr;
+    gap: 26px;
     align-items: start;
   }
-  @media (max-width: 860px) {
-    .wrap { grid-template-columns: 1fr; }
-  }
+  @media (max-width: 880px) { .wrap { grid-template-columns: 1fr; } }
 
   .card {
-    background: var(--panel);
+    background: var(--green-1);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 20px;
+    padding: 22px;
   }
   .card h2 {
-    margin: 0 0 16px;
-    font-size: 1.05rem;
-    font-weight: 600;
+    margin: 0 0 18px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--orange);
   }
 
   label {
     display: block;
-    font-size: 0.8rem;
+    font-size: 0.74rem;
     color: var(--muted);
-    margin: 14px 0 5px;
+    margin: 16px 0 6px;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.08em;
+    font-weight: 600;
   }
   label:first-of-type { margin-top: 0; }
 
   input, select, textarea {
     width: 100%;
-    padding: 10px 12px;
-    background: var(--panel-2);
+    padding: 11px 13px;
+    background: var(--green-2);
     border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--text);
-    font-size: 0.95rem;
+    border-radius: 9px;
+    color: var(--light);
+    font-size: 0.96rem;
     font-family: inherit;
+    font-weight: 500;
   }
   input:focus, select:focus, textarea:focus {
     outline: none;
-    border-color: var(--accent);
+    border-color: var(--orange);
+    box-shadow: 0 0 0 3px var(--orange-soft);
   }
-  textarea { resize: vertical; min-height: 56px; }
-
-  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  textarea { resize: vertical; min-height: 58px; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
 
   button.primary {
     width: 100%;
-    margin-top: 18px;
-    padding: 12px;
-    background: var(--accent);
+    margin-top: 20px;
+    padding: 13px;
+    background: var(--orange);
     color: #fff;
     border: none;
-    border-radius: 8px;
-    font-size: 0.98rem;
-    font-weight: 600;
+    border-radius: 9px;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
     cursor: pointer;
+    transition: filter 0.15s ease;
   }
-  button.primary:hover { background: #2f6fd6; }
-  button.primary:disabled { opacity: 0.6; cursor: not-allowed; }
+  button.primary:hover { filter: brightness(1.08); }
+  button.primary:disabled { opacity: 0.55; cursor: not-allowed; }
 
-  /* Stats */
+  /* ---------- Stats ---------- */
   .stat-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 14px;
+    grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+    gap: 15px;
   }
   .stat {
-    background: var(--panel-2);
+    background: var(--green-2);
     border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 14px 16px;
+    border-radius: 11px;
+    padding: 15px 17px;
   }
-  .stat .k { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
-  .stat .v { font-size: 1.7rem; font-weight: 700; margin-top: 4px; letter-spacing: -0.02em; }
-  .stat .sub { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
-  .pos { color: var(--green); }
-  .neg { color: var(--red); }
+  .stat .k { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
+  .stat .v { font-size: 1.9rem; font-weight: 700; margin-top: 5px; letter-spacing: -0.01em; }
+  .stat .sub { font-size: 0.78rem; color: var(--muted); margin-top: 3px; }
+  .pos { color: var(--orange); }
+  .neg { color: var(--neg); }
 
-  /* Signal breakdown table */
+  /* ---------- Tables ---------- */
   table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-  th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--border); }
-  th { color: var(--muted); font-weight: 500; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; }
-  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
-
-  .bar {
-    height: 6px;
-    background: var(--panel-2);
-    border-radius: 4px;
-    overflow: hidden;
-    margin-top: 5px;
+  th, td { text-align: left; padding: 11px 9px; border-bottom: 1px solid var(--border); }
+  th {
+    color: var(--muted); font-weight: 600; font-size: 0.7rem;
+    text-transform: uppercase; letter-spacing: 0.07em;
   }
-  .bar > span { display: block; height: 100%; background: var(--accent); }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  tbody tr:last-child td { border-bottom: none; }
+
+  .bar { height: 6px; background: var(--green); border-radius: 4px; overflow: hidden; margin-top: 6px; }
+  .bar > span { display: block; height: 100%; background: var(--orange); }
 
   .pill {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 999px;
-    font-size: 0.75rem;
-    font-weight: 600;
+    display: inline-block; padding: 2px 9px; border-radius: 999px;
+    font-size: 0.74rem; font-weight: 700; letter-spacing: 0.04em;
   }
-  .pill.long { background: rgba(34,197,94,0.15); color: var(--green); }
-  .pill.short { background: rgba(239,68,68,0.15); color: var(--red); }
+  .pill.long  { background: var(--orange-soft); color: var(--orange); }
+  .pill.short { background: rgba(143,170,176,0.18); color: var(--muted); }
 
-  .trade-result { font-variant-numeric: tabular-nums; font-weight: 600; }
+  .trade-result { font-variant-numeric: tabular-nums; font-weight: 700; }
 
   .delete-btn {
-    background: none;
-    border: none;
-    color: var(--muted);
-    cursor: pointer;
-    font-size: 1rem;
-    padding: 2px 6px;
-    border-radius: 6px;
+    background: none; border: none; color: var(--muted); cursor: pointer;
+    font-size: 1.1rem; line-height: 1; padding: 3px 7px; border-radius: 7px;
   }
-  .delete-btn:hover { color: var(--red); background: rgba(239,68,68,0.1); }
+  .delete-btn:hover { color: var(--neg); background: var(--neg-soft); }
 
-  .empty {
-    color: var(--muted);
-    text-align: center;
-    padding: 30px 10px;
-    font-size: 0.92rem;
-  }
+  .empty { color: var(--muted); text-align: center; padding: 32px 10px; font-size: 0.92rem; }
 
-  .banner {
-    margin: 0 24px 0;
-    padding: 12px 16px;
-    border-radius: 10px;
-    font-size: 0.88rem;
-  }
-  .banner.warn { background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.35); color: #fcd9a0; }
-  .banner.err  { background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.35); color: #f7b4b4; }
-  .banner code { background: rgba(255,255,255,0.08); padding: 1px 5px; border-radius: 4px; }
+  .banner { margin: 0 28px; padding: 13px 16px; border-radius: 11px; font-size: 0.88rem; }
+  .banner.warn { background: var(--orange-soft); border: 1px solid rgba(253,104,38,0.4); color: #ffd2ba; }
+  .banner.err  { background: var(--neg-soft); border: 1px solid rgba(232,76,76,0.4); color: #ffc4c4; }
+  .banner code { background: rgba(255,255,255,0.1); padding: 1px 6px; border-radius: 5px; }
 
-  .section-gap { margin-top: 24px; }
-
-  .filter-bar { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
-  .filter-bar select { width: auto; min-width: 180px; }
+  .section-gap { margin-top: 26px; }
+  .filter-bar { display: flex; gap: 11px; align-items: center; margin-bottom: 15px; flex-wrap: wrap; }
+  .filter-bar select { width: auto; min-width: 190px; }
   .filter-bar .spacer { flex: 1; }
   .muted-note { color: var(--muted); font-size: 0.82rem; }
+
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 22px 28px;
+    display: flex; align-items: center; gap: 12px;
+    color: var(--muted); font-size: 0.82rem; letter-spacing: var(--tracking);
+  }
+  footer .spacer { flex: 1; }
+  footer .wm { color: var(--orange); font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
 </style>
 </head>
 <body>
 
-<header>
+<!-- ===== Logo lock-up ===== -->
+<div class="topbar">
+  <svg class="logo-symbol" viewBox="0 0 100 100" aria-label="Alpine Capital">
+    <circle cx="50" cy="50" r="44" fill="none" stroke="#FD6826" stroke-width="4.5"/>
+    <path fill="#FD6826" d="M18 73 L50 28 L82 73 Z"/>
+    <path fill="#002C32" d="M50 28 L39 59 L49.5 50 L55 59 L60 52 Z"/>
+  </svg>
+  <span class="wordmark">Alpine Capital</span>
+  <span class="divider"></span>
+  <span class="tool-name">Hit Rate Calculator</span>
+  <span class="spacer"></span>
+  <span class="site">www.alpinecapital.au</span>
+</div>
+
+<header class="hero">
   <h1>Hit Rate Calculator</h1>
   <p>A paper-trading scorecard. Log each idea your strategy produces and see whether it actually has an edge — no real money involved.</p>
 </header>
@@ -255,7 +304,7 @@
     <section class="card section-gap" aria-label="Hit rate by signal type">
       <h2>Hit rate by signal type</h2>
       <div id="signalBreakdown"></div>
-      <p class="muted-note" style="margin-top:14px;">
+      <p class="muted-note" style="margin-top:15px;">
         A handful of trades won't tell you much — give each signal type a few dozen before you trust the number.
       </p>
     </section>
@@ -280,6 +329,14 @@
 
 </div>
 
+<footer>
+  <span class="wm">Alpine Capital</span>
+  <span class="divider"></span>
+  <span>Hit Rate Calculator · paper-trading scorecard</span>
+  <span class="spacer"></span>
+  <span>www.alpinecapital.au</span>
+</footer>
+
 <script type="module">
   /* ============================================================
      FIREBASE CONFIG
@@ -303,7 +360,6 @@
 
   const COLLECTION = "trades";
 
-  // ---- Signal types (kept in sync with the form) -------------
   const SIGNAL_TYPES = [
     "Cap Raise – Long",
     "Cap Raise – Short",
@@ -312,16 +368,11 @@
     "Other",
   ];
 
-  // ---- Storage layer -----------------------------------------
-  // We swap between a Firebase-backed store and a localStorage
-  // fallback so the page works with or without config.
+  // ---- Storage layer (Firebase, with localStorage fallback) ----
   let store;
-
   const banner = document.getElementById("storageBanner");
-
-  function showBanner(kind, html) {
-    banner.innerHTML = `<div class="banner ${kind}">${html}</div>`;
-  }
+  const showBanner = (kind, html) =>
+    (banner.innerHTML = `<div class="banner ${kind}">${html}</div>`);
 
   const configLooksReal =
     firebaseConfig && firebaseConfig.apiKey && firebaseConfig.projectId;
@@ -355,49 +406,36 @@
               },
               (err) => {
                 console.error(err);
-                showBanner(
-                  "err",
-                  `Couldn't read from Firestore: ${err.message}. Check your security rules.`
-                );
+                showBanner("err",
+                  `Couldn't read from Firestore: ${err.message}. Check your security rules.`);
               }
             );
           },
-          async add(trade) {
-            await addDoc(col, { ...trade, createdAt: serverTimestamp() });
-          },
-          async remove(id) {
-            await deleteDoc(doc(db, COLLECTION, id));
-          },
+          async add(trade) { await addDoc(col, { ...trade, createdAt: serverTimestamp() }); },
+          async remove(id) { await deleteDoc(doc(db, COLLECTION, id)); },
         };
         return;
       } catch (err) {
         console.error(err);
-        showBanner(
-          "err",
-          `Firebase failed to load (${err.message}). Falling back to this browser's local storage.`
-        );
+        showBanner("err",
+          `Firebase failed to load (${err.message}). Falling back to this browser's local storage.`);
       }
     } else {
-      showBanner(
-        "warn",
+      showBanner("warn",
         `No Firebase config detected — trades are being saved to <strong>this browser only</strong>. ` +
-          `Paste your config into the <code>firebaseConfig</code> block near the top of the file to sync to the cloud.`
-      );
+        `Paste your config into the <code>firebaseConfig</code> block near the top of the file to sync to the cloud.`);
     }
 
-    // ---- localStorage fallback -------------------------------
+    // ---- localStorage fallback ----
     const KEY = "hit-rate-trades";
     let listeners = [];
-    const read = () => {
-      try { return JSON.parse(localStorage.getItem(KEY)) || []; }
-      catch { return []; }
-    };
+    const read = () => { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch { return []; } };
+    const sortTrades = (t) =>
+      [...t].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
     const write = (t) => {
       localStorage.setItem(KEY, JSON.stringify(t));
       listeners.forEach((cb) => cb(sortTrades(t)));
     };
-    const sortTrades = (t) =>
-      [...t].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
 
     store = {
       subscribe(cb) {
@@ -405,36 +443,26 @@
         cb(sortTrades(read()));
         return () => { listeners = listeners.filter((l) => l !== cb); };
       },
-      async add(trade) {
-        const t = read();
-        t.push({ ...trade, id: crypto.randomUUID() });
-        write(t);
-      },
-      async remove(id) {
-        write(read().filter((x) => x.id !== id));
-      },
+      async add(trade) { const t = read(); t.push({ ...trade, id: crypto.randomUUID() }); write(t); },
+      async remove(id) { write(read().filter((x) => x.id !== id)); },
     };
   }
 
-  // ---- Math --------------------------------------------------
-  // Return % is signed by direction: Long profits when price
-  // rises, Short profits when price falls.
+  // ---- Math (direction-aware returns) ----
   function returnPct(trade) {
     const { entry, exit, direction } = trade;
     if (!entry) return 0;
     const raw = ((exit - entry) / entry) * 100;
     return direction === "Short" ? -raw : raw;
   }
-  const isWin = (trade) => returnPct(trade) > 0;
+  const isWin = (t) => returnPct(t) > 0;
 
   function summarise(trades) {
     const wins = trades.filter(isWin);
-    const losses = trades.filter((t) => !isWin(t) && returnPct(t) < 0);
+    const losses = trades.filter((t) => returnPct(t) < 0);
     const breakeven = trades.length - wins.length - losses.length;
-
     const avg = (arr) =>
       arr.length ? arr.reduce((s, t) => s + returnPct(t), 0) / arr.length : 0;
-
     return {
       total: trades.length,
       wins: wins.length,
@@ -447,15 +475,14 @@
     };
   }
 
-  // ---- Formatting helpers ------------------------------------
+  // ---- Formatting ----
   const fmtPct = (n) => `${n >= 0 ? "+" : ""}${n.toFixed(2)}%`;
   const cls = (n) => (n > 0 ? "pos" : n < 0 ? "neg" : "");
   const esc = (s) =>
-    String(s ?? "").replace(/[&<>"']/g, (c) => ({
-      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
-    }[c]));
+    String(s ?? "").replace(/[&<>"']/g, (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
-  // ---- Rendering ---------------------------------------------
+  // ---- Rendering ----
   const statGrid = document.getElementById("statGrid");
   const signalBreakdown = document.getElementById("signalBreakdown");
   const tradeTable = document.getElementById("tradeTable");
@@ -485,50 +512,33 @@
         <div class="k">Running P&amp;L</div>
         <div class="v ${cls(s.pnl)}">${s.total ? fmtPct(s.pnl) : "—"}</div>
         <div class="sub">sum of trade returns</div>
-      </div>
-    `;
+      </div>`;
   }
 
   function renderSignalBreakdown(trades) {
-    const present = SIGNAL_TYPES.filter((sig) =>
-      trades.some((t) => t.signal === sig)
-    );
+    const present = SIGNAL_TYPES.filter((sig) => trades.some((t) => t.signal === sig));
     if (!present.length) {
       signalBreakdown.innerHTML = `<div class="empty">No trades yet — log one to see the breakdown.</div>`;
       return;
     }
-
-    const rows = present
-      .map((sig) => {
-        const group = trades.filter((t) => t.signal === sig);
-        const s = summarise(group);
-        return `
-          <tr>
-            <td>
-              ${esc(sig)}
-              <div class="bar"><span style="width:${s.hitRate}%"></span></div>
-            </td>
-            <td class="num">${s.hitRate.toFixed(0)}%</td>
-            <td class="num">${s.wins}/${s.total}</td>
-            <td class="num pos">${s.wins ? fmtPct(s.avgWin) : "—"}</td>
-            <td class="num neg">${s.losses ? fmtPct(s.avgLoss) : "—"}</td>
-            <td class="num ${cls(s.pnl)}">${fmtPct(s.pnl)}</td>
-          </tr>`;
-      })
-      .join("");
-
+    const rows = present.map((sig) => {
+      const s = summarise(trades.filter((t) => t.signal === sig));
+      return `
+        <tr>
+          <td>${esc(sig)}<div class="bar"><span style="width:${s.hitRate}%"></span></div></td>
+          <td class="num">${s.hitRate.toFixed(0)}%</td>
+          <td class="num">${s.wins}/${s.total}</td>
+          <td class="num pos">${s.wins ? fmtPct(s.avgWin) : "—"}</td>
+          <td class="num neg">${s.losses ? fmtPct(s.avgLoss) : "—"}</td>
+          <td class="num ${cls(s.pnl)}">${fmtPct(s.pnl)}</td>
+        </tr>`;
+    }).join("");
     signalBreakdown.innerHTML = `
       <table>
-        <thead>
-          <tr>
-            <th>Signal type</th>
-            <th class="num">Hit rate</th>
-            <th class="num">W/T</th>
-            <th class="num">Avg win</th>
-            <th class="num">Avg loss</th>
-            <th class="num">P&amp;L</th>
-          </tr>
-        </thead>
+        <thead><tr>
+          <th>Signal type</th><th class="num">Hit rate</th><th class="num">W/T</th>
+          <th class="num">Avg win</th><th class="num">Avg loss</th><th class="num">P&amp;L</th>
+        </tr></thead>
         <tbody>${rows}</tbody>
       </table>`;
   }
@@ -536,10 +546,7 @@
   function renderTradeTable(trades) {
     const filter = signalFilter.value;
     const view = filter ? trades.filter((t) => t.signal === filter) : trades;
-
-    tradeCount.textContent = view.length
-      ? `${view.length} trade${view.length === 1 ? "" : "s"}`
-      : "";
+    tradeCount.textContent = view.length ? `${view.length} trade${view.length === 1 ? "" : "s"}` : "";
 
     if (!view.length) {
       tradeTable.innerHTML = `<div class="empty">${
@@ -547,36 +554,28 @@
       }</div>`;
       return;
     }
-
-    const rows = view
-      .map((t) => {
-        const r = returnPct(t);
-        return `
-          <tr>
-            <td>${esc(t.date)}</td>
-            <td><strong>${esc(t.ticker)}</strong></td>
-            <td>${esc(t.signal)}</td>
-            <td><span class="pill ${t.direction === "Long" ? "long" : "short"}">${esc(t.direction)}</span></td>
-            <td class="num">${Number(t.entry)}</td>
-            <td class="num">${Number(t.exit)}</td>
-            <td class="num trade-result ${cls(r)}">${fmtPct(r)}</td>
-            <td class="num"><button class="delete-btn" data-id="${esc(t.id)}" title="Delete trade">&times;</button></td>
-          </tr>`;
-      })
-      .join("");
-
+    const rows = view.map((t) => {
+      const r = returnPct(t);
+      return `
+        <tr>
+          <td>${esc(t.date)}</td>
+          <td><strong>${esc(t.ticker)}</strong></td>
+          <td>${esc(t.signal)}</td>
+          <td><span class="pill ${t.direction === "Long" ? "long" : "short"}">${esc(t.direction)}</span></td>
+          <td class="num">${Number(t.entry)}</td>
+          <td class="num">${Number(t.exit)}</td>
+          <td class="num trade-result ${cls(r)}">${fmtPct(r)}</td>
+          <td class="num"><button class="delete-btn" data-id="${esc(t.id)}" title="Delete trade">&times;</button></td>
+        </tr>`;
+    }).join("");
     tradeTable.innerHTML = `
       <table>
-        <thead>
-          <tr>
-            <th>Date</th><th>Ticker</th><th>Signal</th><th>Dir</th>
-            <th class="num">Entry</th><th class="num">Exit</th>
-            <th class="num">Return</th><th></th>
-          </tr>
-        </thead>
+        <thead><tr>
+          <th>Date</th><th>Ticker</th><th>Signal</th><th>Dir</th>
+          <th class="num">Entry</th><th class="num">Exit</th><th class="num">Return</th><th></th>
+        </tr></thead>
         <tbody>${rows}</tbody>
       </table>`;
-
     tradeTable.querySelectorAll(".delete-btn").forEach((btn) => {
       btn.addEventListener("click", async () => {
         if (confirm("Delete this trade?")) {
@@ -592,10 +591,9 @@
     renderSignalBreakdown(allTrades);
     renderTradeTable(allTrades);
   }
-
   signalFilter.addEventListener("change", () => renderTradeTable(allTrades));
 
-  // ---- Form --------------------------------------------------
+  // ---- Form ----
   const form = document.getElementById("tradeForm");
   const submitBtn = document.getElementById("submitBtn");
   document.getElementById("date").valueAsDate = new Date();
@@ -611,12 +609,10 @@
       exit: parseFloat(document.getElementById("exit").value),
       notes: document.getElementById("notes").value.trim(),
     };
-
     if (!trade.ticker || !trade.date || !(trade.entry > 0) || !(trade.exit > 0)) {
       alert("Please fill in ticker, date, and positive entry/exit prices.");
       return;
     }
-
     submitBtn.disabled = true;
     submitBtn.textContent = "Saving…";
     try {
@@ -632,12 +628,9 @@
     }
   });
 
-  // ---- Boot --------------------------------------------------
+  // ---- Boot ----
   await initStore();
-  store.subscribe((trades) => {
-    allTrades = trades;
-    renderAll();
-  });
+  store.subscribe((trades) => { allTrades = trades; renderAll(); });
 </script>
 </body>
 </html>
