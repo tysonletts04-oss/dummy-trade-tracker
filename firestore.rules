@@ -1,0 +1,28 @@
+rules_version = '2';
+
+// Security rules for the Hit Rate Calculator.
+//
+// This is the "simplest safe-ish" setup described in the README: it
+// limits all access to the single `trades` collection and blocks
+// everything else. The Firebase config values in index.html are public
+// by design — THESE RULES are what actually control access.
+//
+// For a personal, no-login paper-trading tool this is usually a fine
+// trade-off. If you later want it restricted to specific people, turn on
+// Firebase Authentication and tighten the conditions below to
+// `request.auth != null` (or check a specific uid / allow-list).
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // The only collection the app uses.
+    match /trades/{tradeId} {
+      allow read, write: if true;
+    }
+
+    // Deny access to anything else.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
