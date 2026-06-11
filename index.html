@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Hit Rate Calculator</title>
+<style>
+  :root {
+    --bg: #0f1419;
+    --panel: #171e29;
+    --panel-2: #1f2937;
+    --border: #2a3442;
+    --text: #e6edf3;
+    --muted: #8b97a7;
+    --accent: #3b82f6;
+    --green: #22c55e;
+    --red: #ef4444;
+    --amber: #f59e0b;
+    --radius: 12px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  header {
+    padding: 28px 24px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  header h1 { margin: 0; font-size: 1.6rem; letter-spacing: -0.02em; }
+  header p { margin: 6px 0 0; color: var(--muted); font-size: 0.95rem; }
+
+  .wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px;
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+  @media (max-width: 860px) {
+    .wrap { grid-template-columns: 1fr; }
+  }
+
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+  .card h2 {
+    margin: 0 0 16px;
+    font-size: 1.05rem;
+    font-weight: 600;
+  }
+
+  label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin: 14px 0 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  label:first-of-type { margin-top: 0; }
+
+  input, select, textarea {
+    width: 100%;
+    padding: 10px 12px;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 0.95rem;
+    font-family: inherit;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  textarea { resize: vertical; min-height: 56px; }
+
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  button.primary {
+    width: 100%;
+    margin-top: 18px;
+    padding: 12px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.98rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  button.primary:hover { background: #2f6fd6; }
+  button.primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  /* Stats */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px;
+  }
+  .stat {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .stat .k { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  .stat .v { font-size: 1.7rem; font-weight: 700; margin-top: 4px; letter-spacing: -0.02em; }
+  .stat .sub { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+  .pos { color: var(--green); }
+  .neg { color: var(--red); }
+
+  /* Signal breakdown table */
+  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--border); }
+  th { color: var(--muted); font-weight: 500; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+  .bar {
+    height: 6px;
+    background: var(--panel-2);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 5px;
+  }
+  .bar > span { display: block; height: 100%; background: var(--accent); }
+
+  .pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .pill.long { background: rgba(34,197,94,0.15); color: var(--green); }
+  .pill.short { background: rgba(239,68,68,0.15); color: var(--red); }
+
+  .trade-result { font-variant-numeric: tabular-nums; font-weight: 600; }
+
+  .delete-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 2px 6px;
+    border-radius: 6px;
+  }
+  .delete-btn:hover { color: var(--red); background: rgba(239,68,68,0.1); }
+
+  .empty {
+    color: var(--muted);
+    text-align: center;
+    padding: 30px 10px;
+    font-size: 0.92rem;
+  }
+
+  .banner {
+    margin: 0 24px 0;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 0.88rem;
+  }
+  .banner.warn { background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.35); color: #fcd9a0; }
+  .banner.err  { background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.35); color: #f7b4b4; }
+  .banner code { background: rgba(255,255,255,0.08); padding: 1px 5px; border-radius: 4px; }
+
+  .section-gap { margin-top: 24px; }
+
+  .filter-bar { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+  .filter-bar select { width: auto; min-width: 180px; }
+  .filter-bar .spacer { flex: 1; }
+  .muted-note { color: var(--muted); font-size: 0.82rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Hit Rate Calculator</h1>
+  <p>A paper-trading scorecard. Log each idea your strategy produces and see whether it actually has an edge — no real money involved.</p>
+</header>
+
+<div id="storageBanner"></div>
+
+<div class="wrap">
+
+  <!-- ===== Log a trade ===== -->
+  <section class="card" aria-label="Log a trade">
+    <h2>Log a trade</h2>
+    <form id="tradeForm">
+      <div class="row">
+        <div>
+          <label for="ticker">Ticker</label>
+          <input id="ticker" type="text" placeholder="BHP" autocomplete="off" required />
+        </div>
+        <div>
+          <label for="date">Date</label>
+          <input id="date" type="date" required />
+        </div>
+      </div>
+
+      <label for="signal">Signal type</label>
+      <select id="signal" required>
+        <option value="Cap Raise – Long">Cap Raise – Long</option>
+        <option value="Cap Raise – Short">Cap Raise – Short</option>
+        <option value="Results – Long">Results – Long</option>
+        <option value="Results – Short">Results – Short</option>
+        <option value="Other">Other</option>
+      </select>
+
+      <label for="direction">Direction</label>
+      <select id="direction" required>
+        <option value="Long">Long (betting it goes up)</option>
+        <option value="Short">Short (betting it goes down)</option>
+      </select>
+
+      <div class="row">
+        <div>
+          <label for="entry">Entry price</label>
+          <input id="entry" type="number" step="any" min="0" placeholder="0.00" required />
+        </div>
+        <div>
+          <label for="exit">Exit price</label>
+          <input id="exit" type="number" step="any" min="0" placeholder="0.00" required />
+        </div>
+      </div>
+
+      <label for="notes">Notes (optional)</label>
+      <textarea id="notes" placeholder="e.g. high conviction, ASX down big that day"></textarea>
+
+      <button class="primary" type="submit" id="submitBtn">Add trade</button>
+    </form>
+  </section>
+
+  <!-- ===== Dashboard ===== -->
+  <div>
+    <section class="card" aria-label="Headline numbers">
+      <h2>Dashboard</h2>
+      <div class="stat-grid" id="statGrid"></div>
+    </section>
+
+    <section class="card section-gap" aria-label="Hit rate by signal type">
+      <h2>Hit rate by signal type</h2>
+      <div id="signalBreakdown"></div>
+      <p class="muted-note" style="margin-top:14px;">
+        A handful of trades won't tell you much — give each signal type a few dozen before you trust the number.
+      </p>
+    </section>
+
+    <section class="card section-gap" aria-label="Trade history">
+      <h2>Trade history</h2>
+      <div class="filter-bar">
+        <select id="signalFilter">
+          <option value="">All signal types</option>
+          <option value="Cap Raise – Long">Cap Raise – Long</option>
+          <option value="Cap Raise – Short">Cap Raise – Short</option>
+          <option value="Results – Long">Results – Long</option>
+          <option value="Results – Short">Results – Short</option>
+          <option value="Other">Other</option>
+        </select>
+        <div class="spacer"></div>
+        <span class="muted-note" id="tradeCount"></span>
+      </div>
+      <div id="tradeTable"></div>
+    </section>
+  </div>
+
+</div>
+
+<script type="module">
+  /* ============================================================
+     FIREBASE CONFIG
+     ------------------------------------------------------------
+     Paste your Firebase web-app config below. These values are
+     meant to be public — what protects your data are the
+     Firestore security rules (see the README).
+
+     Until you fill this in, the app stores trades in this
+     browser's localStorage so you can try it out immediately.
+     ============================================================ */
+  const firebaseConfig = {
+    // <paste your Firebase config here>
+    // apiKey: "...",
+    // authDomain: "...",
+    // projectId: "...",
+    // storageBucket: "...",
+    // messagingSenderId: "...",
+    // appId: "..."
+  };
+
+  const COLLECTION = "trades";
+
+  // ---- Signal types (kept in sync with the form) -------------
+  const SIGNAL_TYPES = [
+    "Cap Raise – Long",
+    "Cap Raise – Short",
+    "Results – Long",
+    "Results – Short",
+    "Other",
+  ];
+
+  // ---- Storage layer -----------------------------------------
+  // We swap between a Firebase-backed store and a localStorage
+  // fallback so the page works with or without config.
+  let store;
+
+  const banner = document.getElementById("storageBanner");
+
+  function showBanner(kind, html) {
+    banner.innerHTML = `<div class="banner ${kind}">${html}</div>`;
+  }
+
+  const configLooksReal =
+    firebaseConfig && firebaseConfig.apiKey && firebaseConfig.projectId;
+
+  async function initStore() {
+    if (configLooksReal) {
+      try {
+        const { initializeApp } = await import(
+          "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"
+        );
+        const {
+          getFirestore, collection, addDoc, deleteDoc, doc,
+          onSnapshot, query, orderBy, serverTimestamp,
+        } = await import(
+          "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"
+        );
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const col = collection(db, COLLECTION);
+
+        store = {
+          subscribe(cb) {
+            const q = query(col, orderBy("date", "desc"));
+            return onSnapshot(
+              q,
+              (snap) => {
+                const trades = [];
+                snap.forEach((d) => trades.push({ id: d.id, ...d.data() }));
+                cb(trades);
+              },
+              (err) => {
+                console.error(err);
+                showBanner(
+                  "err",
+                  `Couldn't read from Firestore: ${err.message}. Check your security rules.`
+                );
+              }
+            );
+          },
+          async add(trade) {
+            await addDoc(col, { ...trade, createdAt: serverTimestamp() });
+          },
+          async remove(id) {
+            await deleteDoc(doc(db, COLLECTION, id));
+          },
+        };
+        return;
+      } catch (err) {
+        console.error(err);
+        showBanner(
+          "err",
+          `Firebase failed to load (${err.message}). Falling back to this browser's local storage.`
+        );
+      }
+    } else {
+      showBanner(
+        "warn",
+        `No Firebase config detected — trades are being saved to <strong>this browser only</strong>. ` +
+          `Paste your config into the <code>firebaseConfig</code> block near the top of the file to sync to the cloud.`
+      );
+    }
+
+    // ---- localStorage fallback -------------------------------
+    const KEY = "hit-rate-trades";
+    let listeners = [];
+    const read = () => {
+      try { return JSON.parse(localStorage.getItem(KEY)) || []; }
+      catch { return []; }
+    };
+    const write = (t) => {
+      localStorage.setItem(KEY, JSON.stringify(t));
+      listeners.forEach((cb) => cb(sortTrades(t)));
+    };
+    const sortTrades = (t) =>
+      [...t].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+
+    store = {
+      subscribe(cb) {
+        listeners.push(cb);
+        cb(sortTrades(read()));
+        return () => { listeners = listeners.filter((l) => l !== cb); };
+      },
+      async add(trade) {
+        const t = read();
+        t.push({ ...trade, id: crypto.randomUUID() });
+        write(t);
+      },
+      async remove(id) {
+        write(read().filter((x) => x.id !== id));
+      },
+    };
+  }
+
+  // ---- Math --------------------------------------------------
+  // Return % is signed by direction: Long profits when price
+  // rises, Short profits when price falls.
+  function returnPct(trade) {
+    const { entry, exit, direction } = trade;
+    if (!entry) return 0;
+    const raw = ((exit - entry) / entry) * 100;
+    return direction === "Short" ? -raw : raw;
+  }
+  const isWin = (trade) => returnPct(trade) > 0;
+
+  function summarise(trades) {
+    const wins = trades.filter(isWin);
+    const losses = trades.filter((t) => !isWin(t) && returnPct(t) < 0);
+    const breakeven = trades.length - wins.length - losses.length;
+
+    const avg = (arr) =>
+      arr.length ? arr.reduce((s, t) => s + returnPct(t), 0) / arr.length : 0;
+
+    return {
+      total: trades.length,
+      wins: wins.length,
+      losses: losses.length,
+      breakeven,
+      hitRate: trades.length ? (wins.length / trades.length) * 100 : 0,
+      avgWin: avg(wins),
+      avgLoss: avg(losses),
+      pnl: trades.reduce((s, t) => s + returnPct(t), 0),
+    };
+  }
+
+  // ---- Formatting helpers ------------------------------------
+  const fmtPct = (n) => `${n >= 0 ? "+" : ""}${n.toFixed(2)}%`;
+  const cls = (n) => (n > 0 ? "pos" : n < 0 ? "neg" : "");
+  const esc = (s) =>
+    String(s ?? "").replace(/[&<>"']/g, (c) => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+    }[c]));
+
+  // ---- Rendering ---------------------------------------------
+  const statGrid = document.getElementById("statGrid");
+  const signalBreakdown = document.getElementById("signalBreakdown");
+  const tradeTable = document.getElementById("tradeTable");
+  const tradeCount = document.getElementById("tradeCount");
+  const signalFilter = document.getElementById("signalFilter");
+
+  let allTrades = [];
+
+  function renderStats(s) {
+    statGrid.innerHTML = `
+      <div class="stat">
+        <div class="k">Hit rate</div>
+        <div class="v">${s.total ? s.hitRate.toFixed(1) + "%" : "—"}</div>
+        <div class="sub">${s.wins} of ${s.total} trades won</div>
+      </div>
+      <div class="stat">
+        <div class="k">Wins / Losses</div>
+        <div class="v">${s.wins} / ${s.losses}</div>
+        <div class="sub">${s.breakeven ? s.breakeven + " break-even" : "&nbsp;"}</div>
+      </div>
+      <div class="stat">
+        <div class="k">Avg win vs loss</div>
+        <div class="v"><span class="pos">${s.wins ? fmtPct(s.avgWin) : "—"}</span></div>
+        <div class="sub">avg loss <span class="neg">${s.losses ? fmtPct(s.avgLoss) : "—"}</span></div>
+      </div>
+      <div class="stat">
+        <div class="k">Running P&amp;L</div>
+        <div class="v ${cls(s.pnl)}">${s.total ? fmtPct(s.pnl) : "—"}</div>
+        <div class="sub">sum of trade returns</div>
+      </div>
+    `;
+  }
+
+  function renderSignalBreakdown(trades) {
+    const present = SIGNAL_TYPES.filter((sig) =>
+      trades.some((t) => t.signal === sig)
+    );
+    if (!present.length) {
+      signalBreakdown.innerHTML = `<div class="empty">No trades yet — log one to see the breakdown.</div>`;
+      return;
+    }
+
+    const rows = present
+      .map((sig) => {
+        const group = trades.filter((t) => t.signal === sig);
+        const s = summarise(group);
+        return `
+          <tr>
+            <td>
+              ${esc(sig)}
+              <div class="bar"><span style="width:${s.hitRate}%"></span></div>
+            </td>
+            <td class="num">${s.hitRate.toFixed(0)}%</td>
+            <td class="num">${s.wins}/${s.total}</td>
+            <td class="num pos">${s.wins ? fmtPct(s.avgWin) : "—"}</td>
+            <td class="num neg">${s.losses ? fmtPct(s.avgLoss) : "—"}</td>
+            <td class="num ${cls(s.pnl)}">${fmtPct(s.pnl)}</td>
+          </tr>`;
+      })
+      .join("");
+
+    signalBreakdown.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Signal type</th>
+            <th class="num">Hit rate</th>
+            <th class="num">W/T</th>
+            <th class="num">Avg win</th>
+            <th class="num">Avg loss</th>
+            <th class="num">P&amp;L</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }
+
+  function renderTradeTable(trades) {
+    const filter = signalFilter.value;
+    const view = filter ? trades.filter((t) => t.signal === filter) : trades;
+
+    tradeCount.textContent = view.length
+      ? `${view.length} trade${view.length === 1 ? "" : "s"}`
+      : "";
+
+    if (!view.length) {
+      tradeTable.innerHTML = `<div class="empty">${
+        trades.length ? "No trades match this filter." : "No trades logged yet. Add your first one on the left."
+      }</div>`;
+      return;
+    }
+
+    const rows = view
+      .map((t) => {
+        const r = returnPct(t);
+        return `
+          <tr>
+            <td>${esc(t.date)}</td>
+            <td><strong>${esc(t.ticker)}</strong></td>
+            <td>${esc(t.signal)}</td>
+            <td><span class="pill ${t.direction === "Long" ? "long" : "short"}">${esc(t.direction)}</span></td>
+            <td class="num">${Number(t.entry)}</td>
+            <td class="num">${Number(t.exit)}</td>
+            <td class="num trade-result ${cls(r)}">${fmtPct(r)}</td>
+            <td class="num"><button class="delete-btn" data-id="${esc(t.id)}" title="Delete trade">&times;</button></td>
+          </tr>`;
+      })
+      .join("");
+
+    tradeTable.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th><th>Ticker</th><th>Signal</th><th>Dir</th>
+            <th class="num">Entry</th><th class="num">Exit</th>
+            <th class="num">Return</th><th></th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+
+    tradeTable.querySelectorAll(".delete-btn").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        if (confirm("Delete this trade?")) {
+          try { await store.remove(btn.dataset.id); }
+          catch (e) { alert("Delete failed: " + e.message); }
+        }
+      });
+    });
+  }
+
+  function renderAll() {
+    renderStats(summarise(allTrades));
+    renderSignalBreakdown(allTrades);
+    renderTradeTable(allTrades);
+  }
+
+  signalFilter.addEventListener("change", () => renderTradeTable(allTrades));
+
+  // ---- Form --------------------------------------------------
+  const form = document.getElementById("tradeForm");
+  const submitBtn = document.getElementById("submitBtn");
+  document.getElementById("date").valueAsDate = new Date();
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const trade = {
+      ticker: document.getElementById("ticker").value.trim().toUpperCase(),
+      date: document.getElementById("date").value,
+      signal: document.getElementById("signal").value,
+      direction: document.getElementById("direction").value,
+      entry: parseFloat(document.getElementById("entry").value),
+      exit: parseFloat(document.getElementById("exit").value),
+      notes: document.getElementById("notes").value.trim(),
+    };
+
+    if (!trade.ticker || !trade.date || !(trade.entry > 0) || !(trade.exit > 0)) {
+      alert("Please fill in ticker, date, and positive entry/exit prices.");
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Saving…";
+    try {
+      await store.add(trade);
+      form.reset();
+      document.getElementById("date").valueAsDate = new Date();
+      document.getElementById("ticker").focus();
+    } catch (err) {
+      alert("Couldn't save trade: " + err.message);
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Add trade";
+    }
+  });
+
+  // ---- Boot --------------------------------------------------
+  await initStore();
+  store.subscribe((trades) => {
+    allTrades = trades;
+    renderAll();
+  });
+</script>
+</body>
+</html>
